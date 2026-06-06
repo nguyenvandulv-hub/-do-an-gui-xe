@@ -1,0 +1,15 @@
+node_modules/
+target/
+.next/
+dist/
+build/
+*.class
+*.jar
+*.war
+.env
+.env.local
+.idea/
+mysql-data/
+redis-data/
+*.log
+.DS_Store
