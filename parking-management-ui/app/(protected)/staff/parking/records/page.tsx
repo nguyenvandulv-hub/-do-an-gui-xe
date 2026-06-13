@@ -10,6 +10,7 @@ import {
   CreditCard,
   User,
   X,
+  Edit2,
 } from "lucide-react";
 import {
   Card,
@@ -45,6 +46,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useFetchWithAuth } from "@/hooks";
 import { API_ENDPOINTS, buildApiUrl } from "@/config/api";
 
@@ -94,6 +103,11 @@ export default function ParkingRecordsPage() {
   const [filteredRecords, setFilteredRecords] = useState<ParkingRecord[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Edit card state
+  const [editingRecord, setEditingRecord] = useState<ParkingRecord | null>(null);
+  const [newCardId, setNewCardId] = useState<string>("");
+  const [isUpdatingCard, setIsUpdatingCard] = useState(false);
+
   // Fetch danh sách record khi component mount
   useEffect(() => {
     const fetchParkingRecords = async () => {
@@ -121,6 +135,44 @@ export default function ParkingRecordsPage() {
 
     fetchParkingRecords();
   }, [fetchWithAuth]);
+
+  // Update card ID
+  const handleUpdateCardId = async () => {
+    if (!editingRecord) return;
+    
+    const cardNum = parseInt(newCardId);
+    if (isNaN(cardNum) || cardNum < 1 || cardNum > 1000) {
+      toast.error("Mã số thẻ phải từ 1 đến 1000");
+      return;
+    }
+
+    try {
+      setIsUpdatingCard(true);
+      const apiUrl = buildApiUrl(`${API_ENDPOINTS.PARKING.RECORDS}/${editingRecord.recordId}/card`);
+      const data = await fetchWithAuth<ApiResponse>(apiUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newCardId: cardNum }),
+      });
+
+      if (data && data.code === 1000 && data.result) {
+        toast.success("Cập nhật thẻ thành công");
+        setEditingRecord(null);
+        // Cập nhật record trong list
+        setRecords(prev => prev.map(r => r.recordId === editingRecord.recordId ? { ...r, cardId: cardNum } : r));
+        setFilteredRecords(prev => prev.map(r => r.recordId === editingRecord.recordId ? { ...r, cardId: cardNum } : r));
+      } else if (data && data.code === 4005) {
+        toast.error("Thẻ này đang được sử dụng");
+      } else {
+        throw new Error(data?.message || "Không thể cập nhật thẻ");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Không thể cập nhật mã thẻ");
+    } finally {
+      setIsUpdatingCard(false);
+    }
+  };
 
   // Xử lý tìm kiếm
   useEffect(() => {
@@ -372,6 +424,9 @@ export default function ParkingRecordsPage() {
                   <TableHead className="font-medium w-[15%] text-center">
                     Nhân viên
                   </TableHead>
+                  <TableHead className="font-medium w-[10%] text-center">
+                    Thao tác
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -415,15 +470,6 @@ export default function ParkingRecordsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-center gap-2">
-                          {record.vehicleType.name === "Bicycle" && (
-                            <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
-                          )}
-                          {record.vehicleType.name === "Motorbike" && (
-                            <span className="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
-                          )}
-                          {record.vehicleType.name === "Scooter" && (
-                            <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                          )}
                           {record.vehicleType.name === "Bicycle" ? "Xe đạp" : record.vehicleType.name === "Motorbike" ? "Xe máy" : record.vehicleType.name === "Scooter" ? "Xe tay ga" : record.vehicleType.name}
                         </div>
                       </TableCell>
@@ -457,6 +503,19 @@ export default function ParkingRecordsPage() {
                           <User className="h-3 w-3 text-slate-400" />
                           {record.staffIn.username}
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            setEditingRecord(record);
+                            setNewCardId(record.cardId.toString());
+                          }}
+                        >
+                          <Edit2 className="h-4 w-4 mr-1" />
+                          Sửa
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -544,6 +603,34 @@ export default function ParkingRecordsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Card Dialog */}
+      <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sửa mã thẻ</DialogTitle>
+            <DialogDescription>
+              Cập nhật lại mã thẻ cho xe biển số/ID: <span className="font-bold">{editingRecord?.licensePlate || editingRecord?.identifier}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium mb-1 block">Mã thẻ mới</label>
+            <Input 
+              type="number" 
+              value={newCardId} 
+              onChange={e => setNewCardId(e.target.value)} 
+              placeholder="Nhập mã từ 1 đến 1000"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingRecord(null)}>Hủy</Button>
+            <Button onClick={handleUpdateCardId} disabled={isUpdatingCard}>
+              {isUpdatingCard ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Cập nhật
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
