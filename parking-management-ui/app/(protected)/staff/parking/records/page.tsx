@@ -55,6 +55,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useFetchWithAuth } from "@/hooks";
+import { useConfig } from "@/hooks/use-config";
 import { API_ENDPOINTS, buildApiUrl } from "@/config/api";
 
 // Định nghĩa interface cho record xe
@@ -90,6 +91,7 @@ export default function ParkingRecordsPage() {
   const [records, setRecords] = useState<ParkingRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { fetchWithAuth, loading } = useFetchWithAuth();
+  const { shiftConfig } = useConfig();
 
   // State cho phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -140,9 +142,10 @@ export default function ParkingRecordsPage() {
   const handleUpdateCardId = async () => {
     if (!editingRecord) return;
     
+    const maxCards = shiftConfig?.maxParkingCards || 10000;
     const cardNum = parseInt(newCardId);
-    if (isNaN(cardNum) || cardNum < 1 || cardNum > 1000) {
-      toast.error("Mã số thẻ phải từ 1 đến 1000");
+    if (isNaN(cardNum) || cardNum < 1 || cardNum > maxCards) {
+      toast.error(`Mã số thẻ phải từ 1 đến ${maxCards}`);
       return;
     }
 
@@ -619,7 +622,7 @@ export default function ParkingRecordsPage() {
               type="number" 
               value={newCardId} 
               onChange={e => setNewCardId(e.target.value)} 
-              placeholder="Nhập mã từ 1 đến 1000"
+              placeholder="Nhập mã thẻ mới"
             />
           </div>
           <DialogFooter>

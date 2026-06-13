@@ -34,6 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useFetchWithAuth } from "@/hooks/use-fetch-with-auth";
+import { useConfig } from "@/hooks/use-config";
 import { API_ENDPOINTS, buildApiUrl } from "@/config/api";
 
 // Định nghĩa interface cho kết quả API
@@ -72,8 +73,8 @@ const formSchema = z
         required_error: "Vui lòng nhập mã số thẻ",
         invalid_type_error: "Mã số thẻ phải là số",
       })
-      .min(1, "Mã số thẻ phải từ 1 đến 1000")
-      .max(1000, "Mã số thẻ phải từ 1 đến 1000"),
+      .min(1, "Mã số thẻ không hợp lệ (phải > 0)")
+      .max(50000, "Mã số thẻ vượt quá giới hạn hệ thống (tối đa 50000)"),
   })
   .refine((data) => data.licensePlate || data.identifier, {
     message: "Vui lòng nhập biển số xe hoặc identifier",
@@ -84,6 +85,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function VehicleExitPage() {
   const { fetchWithAuth, loading: apiLoading } = useFetchWithAuth();
+  const { shiftConfig } = useConfig();
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
@@ -190,8 +192,17 @@ export default function VehicleExitPage() {
     }
   }, [watchIdentifier, form]);
 
-  // Xử lý submit form
+  // Xử lý submit
   const onSubmit = async (values: FormValues) => {
+    const maxCards = shiftConfig?.maxParkingCards || 10000;
+    if (values.cardId > maxCards) {
+      form.setError("cardId", {
+        type: "manual",
+        message: `Mã số thẻ phải từ 1 đến ${maxCards}`,
+      });
+      return;
+    }
+
     try {
       setLoading(true);
 
