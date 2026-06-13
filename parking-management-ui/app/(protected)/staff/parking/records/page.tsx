@@ -142,10 +142,9 @@ export default function ParkingRecordsPage() {
   const handleUpdateCardId = async () => {
     if (!editingRecord) return;
     
-    const maxCards = shiftConfig?.maxParkingCards || 10000;
     const cardNum = parseInt(newCardId);
-    if (isNaN(cardNum) || cardNum < 1 || cardNum > maxCards) {
-      toast.error(`Mã số thẻ phải từ 1 đến ${maxCards}`);
+    if (isNaN(cardNum) || cardNum < 1 || cardNum > 50000) {
+      toast.error("Mã số thẻ không hợp lệ (tối đa 50000)");
       return;
     }
 

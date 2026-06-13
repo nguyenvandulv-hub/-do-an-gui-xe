@@ -194,15 +194,6 @@ export default function VehicleExitPage() {
 
   // Xử lý submit
   const onSubmit = async (values: FormValues) => {
-    const maxCards = shiftConfig?.maxParkingCards || 10000;
-    if (values.cardId > maxCards) {
-      form.setError("cardId", {
-        type: "manual",
-        message: `Mã số thẻ phải từ 1 đến ${maxCards}`,
-      });
-      return;
-    }
-
     try {
       setLoading(true);
 
