@@ -13,12 +13,21 @@ public class RedisService {
     private final StringRedisTemplate redisTemplate;
 
     public void addToBlacklist(String token, long expirationTime) {
-        redisTemplate.opsForValue().set(token, "Blacklisted", expirationTime, TimeUnit.SECONDS);
+        try {
+            redisTemplate.opsForValue().set(token, "Blacklisted", expirationTime, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            // Ignore Redis errors
+        }
     }
 
     public boolean isTokenBacklisted(String token) {
         if (token == null) return false;
-        Boolean result = redisTemplate.hasKey(token);
-        return Boolean.TRUE.equals(result);
+        try {
+            Boolean result = redisTemplate.hasKey(token);
+            return Boolean.TRUE.equals(result);
+        } catch (Exception e) {
+            // Ignore Redis connection errors and assume token is valid
+            return false;
+        }
     }
 }
