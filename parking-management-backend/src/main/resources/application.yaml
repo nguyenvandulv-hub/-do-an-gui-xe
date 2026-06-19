@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: parking-management
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE:parking_management}?useUnicode=true&characterEncoding=UTF-8
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      initialization-fail-timeout: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: PtitParking
+          secret-key: G18XeUdtfVcoB+Ukcga417kzaaAX5DM4rCuuP7nJUlDQmSKJEZtw/vSH7c3PXn6W
+          valid-duration: 3600
