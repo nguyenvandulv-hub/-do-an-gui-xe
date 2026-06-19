@@ -27,7 +27,7 @@ spring:
     init:
       mode: always
       schema-locations: classpath:db/init/01-schema.sql
-      data-locations: classpath:db/init/02-data.sql
+      data-locations: classpath:db/init/02-data.sql, classpath:db/init/03-mock-data.sql
 
   data:
     redis:
