@@ -23,6 +23,12 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
 
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init/01-schema.sql
+      data-locations: classpath:db/init/02-data.sql
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}
