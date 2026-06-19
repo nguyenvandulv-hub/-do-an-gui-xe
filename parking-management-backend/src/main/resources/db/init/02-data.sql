@@ -30,21 +30,5 @@ FROM vehicle_type vt
 WHERE vt.name = 'Scooter'
 ON DUPLICATE KEY UPDATE day_price = 4000, night_price = 5000, monthly_price = 150000;
 
-DROP PROCEDURE IF EXISTS create_parking_cards;
-
-DELIMITER //
-
-CREATE PROCEDURE create_parking_cards()
-BEGIN
-    DECLARE i INT DEFAULT 1;
-    
-    WHILE i <= 10000 DO
-        INSERT IGNORE INTO parking_card (card_id) VALUES (i);
-        SET i = i + 1;
-    END WHILE;
-END //
-
-DELIMITER ;
-
-CALL create_parking_cards();
-DROP PROCEDURE IF EXISTS create_parking_cards;
+INSERT IGNORE INTO parking_card (card_id) VALUES 
+(1),(2),(3),(4),(5),(6),(7),(8),(9),(10);
