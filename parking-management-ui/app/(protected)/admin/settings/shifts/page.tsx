@@ -27,10 +27,10 @@ export default function ShiftsSettingsPage() {
   const handleSave = async () => {
     const parsedMaxCards = parseInt(maxCards);
     if (parsedMaxCards > 50000) {
-      toast.error("Vui lòng đặt giới hạn không vượt quá 50.000 thẻ để đảm bảo hiệu năng.");
+      alert("Vui lòng đặt giới hạn không vượt quá 50.000 thẻ để đảm bảo hiệu năng.");
       return;
     }
-    
+
     await updateShiftConfig({
       dayShiftStartHour: parseInt(dayStart),
       nightShiftStartHour: parseInt(nightStart),
@@ -111,7 +111,7 @@ export default function ShiftsSettingsPage() {
               </Select>
             </div>
           </div>
-          
+
           <div className="bg-blue-50 text-blue-800 p-4 rounded-md text-sm">
             <strong>💡 Lưu ý cách tính:</strong>
             <ul className="list-disc pl-5 mt-1 space-y-1">
@@ -140,14 +140,14 @@ export default function ShiftsSettingsPage() {
               </Label>
               <p className="text-xs text-emerald-600/80">Nhập số lượng thẻ tối đa.</p>
             </div>
-            <Input 
-              id="maxCards" 
-              type="number" 
-              min="1" 
+            <Input
+              id="maxCards"
+              type="number"
+              min="1"
               max="50000"
-              className="bg-white" 
-              value={maxCards} 
-              onChange={(e) => setMaxCards(e.target.value)} 
+              className="bg-white"
+              value={maxCards}
+              onChange={(e) => setMaxCards(e.target.value)}
             />
           </div>
         </CardContent>

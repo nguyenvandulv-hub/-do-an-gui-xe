@@ -164,9 +164,9 @@ export default function StaffList() {
         isActive: !selectedStaff.isActive, // Đảo ngược trạng thái isActive
       };
 
-      // Gọi API để cập nhật trạng thái
+      const apiUrl = buildApiUrl(API_ENDPOINTS.ADMIN.STAFF_DETAIL(selectedStaff.accountId));
       const response = await fetch(
-        `http://localhost:8080/api/admin/staffs/${selectedStaff.accountId}`,
+        apiUrl,
         {
           method: "PUT",
           headers: {

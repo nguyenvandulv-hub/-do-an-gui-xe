@@ -261,8 +261,9 @@ export default function EditStaffPage() {
         isActive: originalStaff?.isActive || true,
       };
 
+      const apiUrl = buildApiUrl(API_ENDPOINTS.ADMIN.STAFF_DETAIL(staffId));
       const response = await fetch(
-        `http://localhost:8080/api/admin/staffs/${staffId}`,
+        apiUrl,
         {
           method: "PUT",
           headers: {
