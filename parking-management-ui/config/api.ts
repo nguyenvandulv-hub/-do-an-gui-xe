@@ -10,6 +10,9 @@ export const API_ENDPOINTS = {
     LOGOUT: "/auth/logout",
     MY_INFO: "/auth/my-info",
     CHANGE_PASSWORD: "/auth/change-password",
+    SEND_OTP: "/auth/send-otp",
+    REGISTER_STAFF: "/auth/register-staff",
+    GOOGLE_LOGIN: "/auth/google-login",
   },
 
   // Parking

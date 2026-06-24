@@ -20,6 +20,10 @@ public enum ErrorCode {
     AUTH_UNAUTHORIZED(1007, "Unauthorized request", HttpStatus.FORBIDDEN),
     AUTH_WRONG_PASSWORD(1008, "Password is incorrect", HttpStatus.BAD_REQUEST),
     AUTH_PASSWORD_SAME_AS_OLD(1009, "New password must be different from the old password", HttpStatus.BAD_REQUEST),
+    AUTH_OTP_INVALID(1010, "OTP is incorrect or expired", HttpStatus.BAD_REQUEST),
+    AUTH_ACCOUNT_NOT_ACTIVE(1011, "Tài khoản của bạn chưa được Admin kích hoạt", HttpStatus.UNAUTHORIZED),
+    AUTH_GOOGLE_REGISTRATION_SUCCESS(1012, "Đăng ký Google thành công. Hãy liên hệ Admin để kích hoạt tài khoản", HttpStatus.CREATED),
+    AUTH_GOOGLE_TOKEN_INVALID(1013, "Google Sign-In token is invalid", HttpStatus.BAD_REQUEST),
     
     // Staff
     USERNAME_EXISTED(2001, "Username already exists", HttpStatus.BAD_REQUEST),

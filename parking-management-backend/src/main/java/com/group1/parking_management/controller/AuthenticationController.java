@@ -54,4 +54,26 @@ public class AuthenticationController {
                 .result("Password changed successfully!")
                 .build();
     }
+
+    @PostMapping("/send-otp")
+    public ApiResponse<String> sendOtp(@RequestBody @Valid com.group1.parking_management.dto.request.OtpRequest request) {
+        authenticationService.sendOtp(request.getEmail());
+        return ApiResponse.<String>builder()
+                .result("OTP sent successfully to " + request.getEmail())
+                .build();
+    }
+
+    @PostMapping("/register-staff")
+    public ApiResponse<StaffResponse> registerStaff(@RequestBody @Valid com.group1.parking_management.dto.request.RegisterStaffRequest request) {
+        return ApiResponse.<StaffResponse>builder()
+                .result(authenticationService.registerStaff(request))
+                .build();
+    }
+
+    @PostMapping("/google-login")
+    public ApiResponse<LoginResponse> googleLogin(@RequestBody @Valid com.group1.parking_management.dto.request.GoogleLoginRequest request) {
+        return ApiResponse.<LoginResponse>builder()
+                .result(authenticationService.googleLogin(request))
+                .build();
+    }
 }

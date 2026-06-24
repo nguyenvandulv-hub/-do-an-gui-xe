@@ -76,7 +76,50 @@ const LoginForm = () => {
     }
   };
 
+  const { loginWithGoogle } = useAuth();
+  const [googleMsg, setGoogleMsg] = useState<string | null>(null);
 
+  // Khởi tạo Google One Tap / Button Login
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        window.google?.accounts.id.initialize({
+          client_id: "354002613146-24e58h75a74k87h2o5c7qac8pgg61dfa.apps.googleusercontent.com", // client id mẫu, user có thể cấu hình thông qua NEXT_PUBLIC_GOOGLE_CLIENT_ID
+          callback: async (response: any) => {
+            try {
+              setIsLoading(true);
+              setLoginError(null);
+              setGoogleMsg(null);
+              const result = await loginWithGoogle(response.credential);
+              if (result && result.code === 1012) {
+                setGoogleMsg("Đăng ký tài khoản Google thành công! Vui lòng chờ Admin duyệt để có thể đăng nhập.");
+              } else if (result && result.code === 1000) {
+                const userRole = result.result?.role;
+                if (userRole === "ADMIN") {
+                  router.push("/admin/dashboard");
+                } else {
+                  router.push("/staff/dashboard");
+                }
+              }
+            } catch (err: any) {
+              setLoginError(err.message || "Đăng nhập Google thất bại");
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        });
+        window.google?.accounts.id.renderButton(
+          document.getElementById("google-signin-btn"),
+          { theme: "outline", size: "large", width: 350 }
+        );
+      };
+      document.head.appendChild(script);
+    }
+  });
 
   return (
     <Card className="w-[400px]">
@@ -84,8 +127,13 @@ const LoginForm = () => {
         Đăng nhập
       </CardHeader>
       <CardContent className="space-y-4">
+        {googleMsg && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded text-sm">
+            {googleMsg}
+          </div>
+        )}
         {(loginError || authError) && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
             {loginError || authError}
           </div>
         )}
@@ -93,7 +141,7 @@ const LoginForm = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
+            className="space-y-4"
           >
             <FormField
               control={form.control}
@@ -157,6 +205,26 @@ const LoginForm = () => {
             </Button>
           </form>
         </Form>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-muted-foreground">Hoặc</span>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <div id="google-signin-btn"></div>
+        </div>
+
+        <div className="text-center text-sm text-gray-500 mt-2">
+          Chưa có tài khoản?{" "}
+          <a href="/register" className="text-blue-500 hover:underline font-semibold">
+            Đăng ký nhân viên
+          </a>
+        </div>
       </CardContent>
     </Card>
   );

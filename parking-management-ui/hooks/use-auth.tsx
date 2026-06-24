@@ -30,6 +30,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<any>;
+  loginWithGoogle: (idToken: string) => Promise<any>;
   logout: () => Promise<boolean>;
   refreshUserInfo: () => Promise<void>;
 }
@@ -40,6 +41,7 @@ const AuthContextValue = createContext<AuthContextType>({
   loading: false,
   error: null,
   login: async () => {},
+  loginWithGoogle: async () => {},
   logout: async () => false,
   refreshUserInfo: async () => {},
 });
@@ -178,6 +180,59 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     }
   };
 
+  // Hàm đăng nhập bằng Google
+  const loginWithGoogle = async (idToken: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const apiUrl = buildApiUrl(API_ENDPOINTS.AUTH.GOOGLE_LOGIN);
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (data.code === 1012) {
+        // Đăng ký Google thành công, chờ admin duyệt
+        return data;
+      }
+
+      if (data.code !== 1000 || !data.result?.token) {
+        throw new Error(data.message || "Đăng nhập Google thất bại");
+      }
+
+      const token = data.result.token;
+      Cookies.set("authToken", token, { expires: 1 });
+      localStorage.setItem("token", token);
+
+      Cookies.set("userRole", data.result.role, { expires: 1 });
+      localStorage.setItem("userRole", data.result.role);
+
+      const basicUserInfo = {
+        username: data.result.username,
+        role: data.result.role,
+      };
+
+      setUser(basicUserInfo);
+      localStorage.setItem("userInfo", JSON.stringify(basicUserInfo));
+
+      await refreshUserInfo();
+
+      return data;
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Hàm đăng xuất
   const logout = async () => {
     setLoading(true);
@@ -234,6 +289,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     loading,
     error,
     login,
+    loginWithGoogle,
     logout,
     refreshUserInfo,
   };
