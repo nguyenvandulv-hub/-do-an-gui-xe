@@ -87,8 +87,8 @@ const LoginForm = () => {
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        window.google?.accounts.id.initialize({
-          client_id: "354002613146-24e58h75a74k87h2o5c7qac8pgg61dfa.apps.googleusercontent.com", // client id mẫu, user có thể cấu hình thông qua NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        (window as any).google?.accounts.id.initialize({
+          client_id: "354002613146-24e58h75a74k87h2o5c7qac8pgg61dfa.apps.googleusercontent.com",
           callback: async (response: any) => {
             try {
               setIsLoading(true);
@@ -112,7 +112,7 @@ const LoginForm = () => {
             }
           },
         });
-        window.google?.accounts.id.renderButton(
+        (window as any).google?.accounts.id.renderButton(
           document.getElementById("google-signin-btn"),
           { theme: "outline", size: "large", width: 350 }
         );
